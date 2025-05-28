@@ -98,7 +98,7 @@ const Index = () => {
   useEffect(() => {
     const nextEtas: { [routeId: string]: string[] } = {};
     for (const route of routesData) {
-      nextEtas[route.id] = getSimulatedEtas(route.baseDeparture, route.stops.length, tick);
+      nextEtas[route.id] = getSimulatedEtas(route.baseDeparture as [number, number], route.stops.length, tick);
     }
     setEtas(nextEtas);
   }, [tick]);

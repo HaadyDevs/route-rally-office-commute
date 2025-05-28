@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -185,13 +184,21 @@ const Landing = () => {
           <br />
           Pick your preferred route, tap to join, and ride—fast, easy, and made for your team.
         </p>
-        {/* CTA Button */}
-        <button
-          className="mt-4 px-7 py-3 rounded-full bg-[#ba5600] text-white font-semibold text-lg shadow-lg ring-2 ring-primary/5 hover:bg-orange-700 active:bg-orange-800 hover:scale-105 transition-all duration-150 animate-button-pop focus:outline-none focus:ring-2 focus:ring-primary/70"
-          onClick={() => navigate("/")}
-        >
-          Get Started
-        </button>
+        {/* CTA Buttons */}
+        <div className="flex flex-col gap-3 mt-4">
+          <button
+            className="px-7 py-3 rounded-full bg-[#ba5600] text-white font-semibold text-lg shadow-lg ring-2 ring-primary/5 hover:bg-orange-700 active:bg-orange-800 hover:scale-105 transition-all duration-150 animate-button-pop focus:outline-none focus:ring-2 focus:ring-primary/70"
+            onClick={() => navigate("/auth")}
+          >
+            Get Started
+          </button>
+          <button
+            className="px-7 py-3 rounded-full bg-white text-[#ba5600] font-semibold text-lg border-2 border-[#ba5600]/20 hover:bg-orange-50 hover:scale-105 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/70"
+            onClick={() => navigate("/")}
+          >
+            Continue as Guest
+          </button>
+        </div>
       </main>
       {/* Footer: minimal */}
       <footer className="mt-12 text-xs text-gray-400 opacity-80 animate-fade-in">

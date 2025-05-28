@@ -1,7 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { RouteCard } from "../components/RouteCard";
-import { Calendar } from "lucide-react";
+import { Calendar, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 // Define routes and stops (for demo)
 const routesData = [
@@ -79,12 +81,19 @@ function getTodayDisplay() {
 }
 
 const Index = () => {
+  const { user, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [joinedRoutes, setJoinedRoutes] = useState<{ [id: string]: boolean }>({});
-  const [loading, setLoading] = useState<{ [id: string]: boolean }>({});
-  // Live ETA state: { [routeId]: string[] }
+  const [loadingStates, setLoadingStates] = useState<{ [id: string]: boolean }>({});
   const [etas, setEtas] = useState<{ [routeId: string]: string[] }>({});
-  // "Tick" for simulated API polling
   const [tick, setTick] = useState(0);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
 
   // Simulate API polling for ETAs
   useEffect(() => {
@@ -105,22 +114,51 @@ const Index = () => {
 
   // Handler for joining (locally, for now)
   const handleJoin = (routeId: string) => {
-    setLoading((p) => ({ ...p, [routeId]: true }));
+    setLoadingStates((p) => ({ ...p, [routeId]: true }));
     setTimeout(() => {
-      setLoading((p) => ({ ...p, [routeId]: false }));
+      setLoadingStates((p) => ({ ...p, [routeId]: false }));
       setJoinedRoutes((prev) => ({ ...prev, [routeId]: true }));
-      if (typeof window !== "undefined") {
-        // Optionally, use shadcn toast or sonner
-        (window as any).toast?.({
-          title: "Joined!",
-          description: "You have joined this route for today.",
-        });
-      }
-    }, 600); // Subtle delay for micro-animation
+    }, 600);
   };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to auth
+  }
 
   return (
     <main className="min-h-screen bg-white font-sans flex flex-col items-center px-2 py-5">
+      {/* Header with sign out button */}
+      <div className="w-full max-w-md mx-auto flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSignOut}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Button>
+      </div>
+
       {/* Date header */}
       <section className="w-full max-w-md mx-auto flex flex-col gap-2 items-center mb-6">
         <div className="flex items-center gap-2 mb-1 animate-fade-in">
@@ -142,7 +180,7 @@ const Index = () => {
             description={route.description}
             joined={!!joinedRoutes[route.id]}
             onJoin={() => handleJoin(route.id)}
-            loading={!!loading[route.id]}
+            loading={!!loadingStates[route.id]}
             stops={route.stops.map((stop, idx) => ({
               ...stop,
               eta: etas[route.id]?.[idx] || "--:--",
@@ -159,4 +197,3 @@ const Index = () => {
 };
 
 export default Index;
-
